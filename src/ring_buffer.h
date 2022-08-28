@@ -11,7 +11,7 @@ class RingBuffer {
     private:
         const size_t elem_size;
         size_t num_elems;
-        void* buf_ptr;
+        char* buf_ptr;
         size_t buf_size;
 
 };
