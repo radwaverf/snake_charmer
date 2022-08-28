@@ -1,1 +1,5 @@
-# C++ Ring Buffer
+# Snake Charmer: C++ Ring Buffer
+
+## Dependencies
+
+doctest-dev
