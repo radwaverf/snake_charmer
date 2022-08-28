@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -18,4 +19,11 @@ RingBuffer::RingBuffer(const size_t elem_size, const size_t num_elems) :
 
 RingBuffer::~RingBuffer() {
     free(buf_ptr);
+}
+
+size_t RingBuffer::get_buffer_size_elems() {
+    return num_elems;
+}
+size_t RingBuffer::get_buffer_size_bytes() {
+    return buf_size;
 }
