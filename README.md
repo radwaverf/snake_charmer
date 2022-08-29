@@ -3,3 +3,4 @@
 ## Dependencies
 
 doctest-dev
+libspdlog-dev

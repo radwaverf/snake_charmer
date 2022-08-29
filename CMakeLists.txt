@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 # Dependencies
 find_package(doctest REQUIRED)
+find_package(spdlog REQUIRED)
 
 # Library
 add_library(snake_charmer
