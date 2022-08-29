@@ -8,7 +8,8 @@
 TEST_CASE("testing the ring_buffer") {
     spdlog::set_level(spdlog::level::debug);
     // Each element is a vector of 1234 floating point values
-    std::vector<float> elem(1234);
+    size_t elem_size=1234;
+    std::vector<float> elem(elem_size);
     // We want to write/read up to 3 elems at a time, with a slack of 2
     size_t max_elems_per_write = 3;
     size_t max_elems_per_read = 3;
@@ -21,7 +22,7 @@ TEST_CASE("testing the ring_buffer") {
     );
     // Assuming that the pagesize is 4096, check that the buffer size is that
     // big
-    CHECK(ring_buffer.get_buffer_size_bytes() >= 1234*4*9);
+    CHECK(ring_buffer.get_buffer_size_bytes() >= elem_size*sizeof(float)*9);
     CHECK(ring_buffer.get_buffer_size_elems() == 9);
     CHECK(ring_buffer.get_buffer_size_elems() >= max_elems_per_write);
     CHECK(ring_buffer.get_buffer_size_elems() >= max_elems_per_read);
@@ -66,4 +67,58 @@ TEST_CASE("testing the ring_buffer") {
         CHECK(elem[0] == n);
         CHECK(elem[1233] == n);
     }
+
+    // Test that we can write/read when straddling the end of the buffer
+    //   first, nearly fill the buffer
+    for (size_t n = 0; n < ring_buffer.get_buffer_size_elems() - 1; n++) {
+        std::fill(elem.begin(), elem.end(), static_cast<float>(n));
+        rc = ring_buffer.write(
+            reinterpret_cast<const char*>(elem.data()),
+            1
+        );
+        CHECK(rc == 0);
+    }
+    //   next, read enough so that we can do a max-sized write
+    elem.resize(elem_size*max_elems_per_write);
+    rc = ring_buffer.read(
+        reinterpret_cast<char*>(elem.data()),
+        max_elems_per_write - 1,
+        std::chrono::microseconds(1)
+    );
+    CHECK(rc == 0);
+    //   next, prep a buffer to write when straddled
+    for (int64_t n = 0; n < max_elems_per_write; n++) {
+        std::fill(
+            elem.begin() + elem_size*n,
+            elem.begin() + elem_size*(n+1),
+            static_cast<float>(-n)
+        );
+    }
+    //   do the write
+    rc = ring_buffer.write(
+        reinterpret_cast<const char*>(elem.data()),
+        max_elems_per_write
+    );
+    CHECK(rc == 0);
+    //   read to up prior write index
+    for (int64_t n = 0; n<ring_buffer.get_buffer_size_elems() - max_elems_per_write; n++) {
+        rc = ring_buffer.read(
+            reinterpret_cast<char*>(elem.data()),
+            1,
+            std::chrono::microseconds(1)
+        );
+        CHECK(rc == 0);
+    }
+    //   read back over the straddle
+    rc = ring_buffer.read(
+        reinterpret_cast<char*>(elem.data()),
+        max_elems_per_write,
+        std::chrono::microseconds(1)
+    );
+    CHECK(rc == 0);
+    for (int64_t n = 0; n < max_elems_per_write; n++) {
+        CHECK(elem[n*elem_size] == -n);
+        CHECK(elem[(n+1)*elem_size-1] == -n);
+    }
+
 }

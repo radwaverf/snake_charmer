@@ -73,7 +73,11 @@ int RingBuffer::write(const char* elem_ptr, const size_t elems_this_write) {
         spdlog::warn("insufficient slack");
         return ENOBUFS;
     }
-    spdlog::debug("writing {} to {}",
+    spdlog::debug("writing elems {} to {} == byte offsets {} to {} == indices {} to {}",
+            write_index,
+            write_index+elems_this_write,
+            write_index*elem_size % buf_size,
+            (write_index+elems_this_write)*elem_size % buf_size,
             write_index*elem_size,
             (write_index+elems_this_write)*elem_size
     );
@@ -106,7 +110,11 @@ int RingBuffer::read(
             return ENOMSG;
         }
     }
-    spdlog::debug("reading {} to {}",
+    spdlog::debug("reading elems {} to {} == byte offsets {} to {} == indices {} to {}",
+            read_index,
+            read_index+elems_this_read,
+            read_index*elem_size % buf_size,
+            (read_index+elems_this_read)*elem_size % buf_size,
             read_index*elem_size,
             (read_index+elems_this_read)*elem_size
     );
