@@ -9,6 +9,7 @@ find_package(spdlog REQUIRED)
 # Library
 add_library(snake_charmer
     src/ring_buffer.cpp
+    src/copy_ring_buffer.cpp
 )
 
 # Tests

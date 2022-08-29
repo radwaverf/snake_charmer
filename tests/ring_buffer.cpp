@@ -2,7 +2,7 @@
 #include <doctest/doctest.h>
 #include <vector>
 #include <spdlog/spdlog.h>
-#include "ring_buffer.h"
+#include "copy_ring_buffer.h"
 #include <chrono>
 
 TEST_CASE("testing the ring_buffer") {
@@ -14,7 +14,7 @@ TEST_CASE("testing the ring_buffer") {
     size_t max_elems_per_write = 3;
     size_t max_elems_per_read = 3;
     size_t slack = 2;
-    RingBuffer ring_buffer(
+    CopyRingBuffer ring_buffer(
         elem.size() * sizeof(float),
         max_elems_per_write,
         max_elems_per_read,

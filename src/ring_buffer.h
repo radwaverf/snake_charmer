@@ -1,5 +1,5 @@
-#include <condition_variable>
 #include <mutex>
+
 
 /**
  * Generic ring buffer.
@@ -64,38 +64,11 @@ class RingBuffer {
          */
         size_t get_buffer_size_bytes();
 
-        /**
-         * Write elem_size bytes to the buffer.
-         *
-         * Returns 0 if successful.
-         * Returns ENOBUFS if buffer full
-         */
-        int write(const char* elem_ptr, const size_t elems_this_write);
-
-        /**
-         * Read elem_size bytes from the buffer.
-         * Waits a maximum duration of timeout for data to arrive.
-         *
-         * elem_ptr pointer to the elements
-         * elems_this_read number of elements to read
-         * timeout number of microseconds to wait for data
-         * advance_size if >= 0, the number of elems to advance the read pointer
-         *
-         * Returns 0 if successful.
-         * Returns ENOMSG if buffer empty
-         */
-        int read(
-            char* elem_ptr,
-            const size_t elems_this_read,
-            const std::chrono::microseconds& timeout,
-            const int64_t advance_size = -1
-        );
-
         # if TESTING==1
         char* _direct(const size_t byte_offset);
         # endif
 
-    private:
+    protected:
         const size_t elem_size;
         const size_t max_elems_per_write;
         const size_t max_elems_per_read;
@@ -106,11 +79,5 @@ class RingBuffer {
         size_t buf_size;
         size_t buf_overlap;
         
-        // thread safety
         std::mutex buf_mutex;
-        std::condition_variable buf_cv;
-
-        // writer/reader indices
-        size_t write_index;
-        size_t read_index;
 };
