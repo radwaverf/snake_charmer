@@ -72,7 +72,8 @@ TEST_CASE("testing the direct_ring_buffer") {
         rc = ring_buffer.grab_read(
             buf_ptr,
             1,
-            reader_0
+            reader_0,
+            std::chrono::microseconds(1)
         );
         CHECK(rc == 0);
         elem_ptr = reinterpret_cast<float*>(buf_ptr);
@@ -109,7 +110,8 @@ TEST_CASE("testing the direct_ring_buffer") {
     rc = ring_buffer.grab_read(
         buf_ptr,
         max_elems_per_write - 1,
-        reader_0
+        reader_0,
+        std::chrono::microseconds(1)
     );
     CHECK(rc == 0);
     rc = ring_buffer.release_read(
@@ -142,7 +144,8 @@ TEST_CASE("testing the direct_ring_buffer") {
         rc = ring_buffer.grab_read(
             buf_ptr,
             1,
-            reader_0
+            reader_0,
+            std::chrono::microseconds(1)
         );
         CHECK(rc == 0);
         rc = ring_buffer.release_read(
@@ -154,7 +157,8 @@ TEST_CASE("testing the direct_ring_buffer") {
     rc = ring_buffer.grab_read(
         buf_ptr,
         max_elems_per_write,
-        reader_0
+        reader_0,
+        std::chrono::microseconds(1)
     );
     CHECK(rc == 0);
     rc = ring_buffer.release_read(

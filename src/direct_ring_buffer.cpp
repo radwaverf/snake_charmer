@@ -47,6 +47,11 @@ int DirectRingBuffer::grab_write(
         const size_t id
         )
 {
+    if(elems_this_write > max_elems_per_write) {
+        spdlog::error("requested too many elems this read: {} vs {}",
+                elems_this_write, max_elems_per_write);
+        return EMSGSIZE;
+    }
     BufferIndexIter itr;
     {
         std::lock_guard<std::mutex> lock(buf_mutex);
@@ -126,6 +131,7 @@ int DirectRingBuffer::release_write(const size_t id) {
                 min_write_index = std::min(min_write_index, itr->second->end);
             }
         }
+        buf_cv.notify_all();
     }
     return 0;
 }
@@ -133,9 +139,15 @@ int DirectRingBuffer::release_write(const size_t id) {
 int DirectRingBuffer::grab_read(
         char*& elem_ptr,
         const size_t elems_this_read,
-        const size_t id
+        const size_t id,
+        const std::chrono::microseconds& timeout
         )
 {
+    if(elems_this_read > max_elems_per_read) {
+        spdlog::error("requested too many elems this read: {} vs {}",
+                elems_this_read, max_elems_per_read);
+        return EMSGSIZE;
+    }
     BufferIndexIter itr;
     {
         std::lock_guard<std::mutex> lock(buf_mutex);
@@ -154,12 +166,14 @@ int DirectRingBuffer::grab_read(
     }
 
     {
-        std::lock_guard<std::mutex> lock(buf_mutex);
+        std::unique_lock<std::mutex> lock(buf_mutex);
         // verify that there are sufficient data in buffer for this read
-        size_t available_elems = min_write_index - max_read_index;
-        if(elems_this_read > available_elems) {
-            spdlog::warn("Insufficient data available: {} vs {} elements", elems_this_read, available_elems);
-            return ENOBUFS; // insufficient data
+        while(elems_this_read > min_write_index - max_read_index) {
+            std::cv_status status = buf_cv.wait_for(lock, timeout);
+            if (status == std::cv_status::timeout) {
+                spdlog::debug("timeout");
+                return ENOMSG;
+            }
         }
         index->in_use = true;
         index->start = max_read_index;
