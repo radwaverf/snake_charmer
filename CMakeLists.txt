@@ -14,9 +14,6 @@ add_library(snake_charmer
 )
 
 # Tests
-add_executable(factorial tests/factorial.cpp)
-target_link_libraries(factorial PRIVATE doctest::doctest)
-target_include_directories(factorial PUBLIC ${DOCTEST_INCLUDE_DIR})
 
 add_executable(test_copy_ring_buffer tests/copy_ring_buffer.cpp)
 target_link_libraries(test_copy_ring_buffer PRIVATE
