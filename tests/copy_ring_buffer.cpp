@@ -4,8 +4,9 @@
 #include <spdlog/spdlog.h>
 #include "copy_ring_buffer.h"
 #include <chrono>
+#include <string.h>
 
-TEST_CASE("testing the ring_buffer") {
+TEST_CASE("testing the copy_ring_buffer") {
     spdlog::set_level(spdlog::level::debug);
     // Each element is a vector of 1234 floating point values
     size_t elem_size=1234;
@@ -120,5 +121,6 @@ TEST_CASE("testing the ring_buffer") {
         CHECK(elem[n*elem_size] == -n);
         CHECK(elem[(n+1)*elem_size-1] == -n);
     }
-
 }
+
+
