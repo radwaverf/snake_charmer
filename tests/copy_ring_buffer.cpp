@@ -21,7 +21,8 @@ TEST_CASE("testing the copy_ring_buffer") {
         elem.size() * sizeof(float),
         max_elems_per_write,
         max_elems_per_read,
-        slack
+        slack,
+        "warning"
     );
     // Assuming that the pagesize is 4096, check that the buffer size is that
     // big

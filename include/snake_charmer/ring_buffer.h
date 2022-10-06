@@ -1,7 +1,9 @@
 #pragma once
 
 #include <mutex>
+#include <memory>
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 
 namespace snake_charmer {
@@ -57,7 +59,7 @@ class RingBuffer {
                 const size_t max_elems_per_write,
                 const size_t max_elems_per_read,
                 const size_t slack,
-                const std::string& loglevel="error"
+                const std::string loglevel
         );
         ~RingBuffer();
         
@@ -86,7 +88,8 @@ class RingBuffer {
         size_t buf_overlap;
         
         std::mutex buf_mutex;
-        spdlog::logger logger;
+        std::shared_ptr<spdlog::logger> logger;
+        std::shared_ptr<spdlog::sinks::stdout_sink_mt> log_sink;
 };
 
 }; // snake_charmer
