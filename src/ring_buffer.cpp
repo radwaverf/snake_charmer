@@ -15,23 +15,27 @@ RingBuffer::RingBuffer(
         const size_t elem_size,
         const size_t max_elems_per_write,
         const size_t max_elems_per_read,
-        const size_t slack
+        const size_t slack,
+        const std::string& loglevel
 ) :
         elem_size(elem_size),
         max_elems_per_write(max_elems_per_write),
         max_elems_per_read(max_elems_per_read),
-        slack(slack)
+        slack(slack),
+        logger("RingBuffer")
 {
+    logger.set_level(spdlog::level::from_str(loglevel));
+
     const size_t min_buffer_size = (slack * max_elems_per_read + max_elems_per_write) * elem_size;
-    spdlog::debug("Min buffer size: {}", min_buffer_size);
+    logger.debug("Min buffer size: {}", min_buffer_size);
     const size_t pagesize_bytes = getpagesize();
-    spdlog::debug("Page size: {}", pagesize_bytes);
+    logger.debug("Page size: {}", pagesize_bytes);
     // the buffer_size must be a multiple of the page size
     buf_size = (
             (min_buffer_size / pagesize_bytes) + 1
     ) * pagesize_bytes;
     num_elems = buf_size / elem_size;
-    spdlog::debug("Actual buffer size: {} bytes = {} elems", buf_size, num_elems);
+    logger.debug("Actual buffer size: {} bytes = {} elems", buf_size, num_elems);
     buf_overlap = (
             std::max(max_elems_per_read, max_elems_per_write)
             * elem_size / pagesize_bytes + 1

@@ -9,7 +9,8 @@ class CopyRingBuffer : public RingBuffer {
                 const size_t elem_size,
                 const size_t max_elems_per_write,
                 const size_t max_elems_per_read,
-                const size_t slack
+                const size_t slack,
+                const std::string& loglevel="error"
         );
         /**
          * Write elem_size bytes to the buffer via memcpy

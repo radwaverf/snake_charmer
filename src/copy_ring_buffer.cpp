@@ -7,25 +7,26 @@ CopyRingBuffer::CopyRingBuffer(
         const size_t elem_size,
         const size_t max_elems_per_write,
         const size_t max_elems_per_read,
-        const size_t slack
+        const size_t slack,
+        const std::string& loglevel
 ) :
-        RingBuffer(elem_size, max_elems_per_write, max_elems_per_read, slack),
+        RingBuffer(elem_size, max_elems_per_write, max_elems_per_read, slack, loglevel),
         write_index(0),
         read_index(0) {
 }
 
 int CopyRingBuffer::write(const char* elem_ptr, const size_t elems_this_write) {
     if(elems_this_write > max_elems_per_write) {
-        spdlog::error("requested too many elems this write: {} vs {}",
+        logger.error("requested too many elems this write: {} vs {}",
                 elems_this_write, max_elems_per_write);
         return EMSGSIZE;
     }
     std::unique_lock<std::mutex> lock(buf_mutex);
     if(write_index + elems_this_write - read_index > num_elems) {
-        spdlog::warn("insufficient slack");
+        logger.warn("insufficient slack");
         return ENOBUFS;
     }
-    spdlog::debug("writing elems {} to {} == byte offsets {} to {} == indices {} to {}",
+    logger.debug("writing elems {} to {} == byte offsets {} to {} == indices {} to {}",
             write_index,
             write_index+elems_this_write,
             write_index*elem_size % buf_size,
@@ -50,7 +51,7 @@ int CopyRingBuffer::read(
         const int64_t advance_size
     ) {
     if(elems_this_read> max_elems_per_read) {
-        spdlog::error("requested too many elems this read: {} vs {}",
+        logger.error("requested too many elems this read: {} vs {}",
                 elems_this_read, max_elems_per_read);
         return EMSGSIZE;
     }
@@ -58,11 +59,11 @@ int CopyRingBuffer::read(
     while(read_index + elems_this_read > write_index) {
         std::cv_status status = buf_cv.wait_for(lock, timeout);
         if (status == std::cv_status::timeout) {
-            spdlog::debug("timeout");
+            logger.debug("timeout");
             return ENOMSG;
         }
     }
-    spdlog::debug("reading elems {} to {} == byte offsets {} to {} == indices {} to {}",
+    logger.debug("reading elems {} to {} == byte offsets {} to {} == indices {} to {}",
             read_index,
             read_index+elems_this_read,
             read_index*elem_size % buf_size,
