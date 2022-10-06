@@ -76,6 +76,11 @@ class RingBuffer {
         char* _direct(const size_t byte_offset);
         # endif
 
+        /**
+         * Get the size of elements in bytes
+         */
+        size_t get_elem_size();
+
     protected:
         const size_t elem_size;
         const size_t max_elems_per_write;

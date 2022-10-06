@@ -73,6 +73,9 @@ size_t RingBuffer::get_buffer_size_elems() {
 size_t RingBuffer::get_buffer_size_bytes() {
     return buf_size;
 }
+size_t RingBuffer::get_elem_size() {
+    return elem_size;
+}
 
 # if TESTING==1
 char* RingBuffer::_direct(const size_t byte_offset) {
