@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <spdlog/spdlog.h>
 
 
 namespace snake_charmer {
