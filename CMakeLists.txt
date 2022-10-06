@@ -9,10 +9,14 @@ find_package(spdlog REQUIRED)
 # Library
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_library(snake_charmer
-    src/ring_buffer.cpp
-    src/copy_ring_buffer.cpp
-    src/direct_ring_buffer.cpp
+file(GLOB HEADER_FILES include/snake_charmer/*.h)
+file(GLOB SRC_FILES src/*.cpp)
+
+add_library(snake_charmer "${SRC_FILES}")
+set_target_properties(snake_charmer PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+install(TARGETS snake_charmer
+    LIBRARY DESTINATION lib
+    PUBLIC_HEADER DESTINATION include/snake_charmer
 )
 
 # Tests
