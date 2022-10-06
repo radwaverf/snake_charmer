@@ -9,15 +9,17 @@ find_package(spdlog REQUIRED)
 # Library
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-file(GLOB HEADER_FILES include/snake_charmer/*.h)
+file(GLOB HEADER_FILES include/${PROJECT_NAME}/*.h)
 file(GLOB SRC_FILES src/*.cpp)
 
-add_library(snake_charmer "${SRC_FILES}")
-set_target_properties(snake_charmer PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
-install(TARGETS snake_charmer
+add_library(${PROJECT_NAME} "${SRC_FILES}")
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib
-    PUBLIC_HEADER DESTINATION include/snake_charmer
+    PUBLIC_HEADER DESTINATION include/${PROJECT_NAME}
 )
+
+install(FILES ${PROJECT_NAME}Config.cmake DESTINATION lib/cmake/${PROJECT_NAME})
 
 # Tests
 if(doctest_FOUND)
