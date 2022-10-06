@@ -6,7 +6,10 @@
 #include <unistd.h>
 
 #include <spdlog/spdlog.h>
-#include "ring_buffer.h"
+#include <snake_charmer/ring_buffer.h>
+
+
+namespace snake_charmer {
 
 RingBuffer::RingBuffer(
         const size_t elem_size,
@@ -66,3 +69,5 @@ char* RingBuffer::_direct(const size_t byte_offset) {
     return buf_ptr + byte_offset;
 }
 # endif
+
+}

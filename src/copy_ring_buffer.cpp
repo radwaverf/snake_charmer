@@ -1,5 +1,7 @@
 #include <spdlog/spdlog.h>
-#include "copy_ring_buffer.h"
+#include <snake_charmer/copy_ring_buffer.h>
+
+namespace snake_charmer {
 
 CopyRingBuffer::CopyRingBuffer(
         const size_t elem_size,
@@ -79,4 +81,6 @@ int CopyRingBuffer::read(
         read_index += advance_size;
     }
     return 0;
+}
+
 }

@@ -2,10 +2,11 @@
 #include <doctest/doctest.h>
 #include <vector>
 #include <spdlog/spdlog.h>
-#include "direct_ring_buffer.h"
+#include <snake_charmer/direct_ring_buffer.h>
 #include <chrono>
 #include <string.h>
 
+using namespace snake_charmer;
 
 TEST_CASE("testing the direct_ring_buffer") {
     spdlog::set_level(spdlog::level::debug);

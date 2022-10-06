@@ -1,6 +1,8 @@
 #include <spdlog/spdlog.h>
-#include "direct_ring_buffer.h"
+#include <snake_charmer/direct_ring_buffer.h>
 
+
+namespace snake_charmer {
 
 using BufferIndexIter = std::map<size_t, BufferIndexPtr>::iterator;
 
@@ -226,4 +228,6 @@ int DirectRingBuffer::release_read(const size_t id) {
         }
     }
     return 0;
+}
+
 }

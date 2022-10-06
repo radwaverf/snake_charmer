@@ -3,6 +3,8 @@
 #include <mutex>
 
 
+namespace snake_charmer {
+
 /**
  * Generic ring buffer.
  *
@@ -83,3 +85,5 @@ class RingBuffer {
         
         std::mutex buf_mutex;
 };
+
+}; // snake_charmer

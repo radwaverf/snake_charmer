@@ -1,6 +1,8 @@
 #include <condition_variable>
 #include "ring_buffer.h"
 
+namespace snake_charmer {
+
 class CopyRingBuffer : public RingBuffer {
     public:
         CopyRingBuffer(
@@ -47,3 +49,5 @@ class CopyRingBuffer : public RingBuffer {
         size_t write_index;
         size_t read_index;
 };
+
+}; // namespace snake_charmer

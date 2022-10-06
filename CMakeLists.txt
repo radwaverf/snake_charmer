@@ -7,6 +7,8 @@ find_package(doctest)
 find_package(spdlog REQUIRED)
 
 # Library
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 add_library(snake_charmer
     src/ring_buffer.cpp
     src/copy_ring_buffer.cpp

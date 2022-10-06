@@ -5,6 +5,8 @@
 #include <memory>
 
 
+namespace snake_charmer {
+
 enum IndexFunction {
     Write = 0,
     Read = 1
@@ -140,3 +142,5 @@ class DirectRingBuffer : public RingBuffer {
         size_t max_read_index;
         
 };
+
+}; // namespace snake_charmer
