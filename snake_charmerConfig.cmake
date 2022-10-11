@@ -1,16 +1,16 @@
 FIND_PATH(
-    SNAKE_CHARMER_INCLUDE_DIRS
+    snake_charmer_INCLUDE_DIRS
     NAMES snake_charmer/ring_buffer.h
-    HINTS $ENV{SNAKE_CHARMER_DIR}/include
+    HINTS $ENV{snake_charmer_DIR}/include
     PATHS /usr/local/include
         /usr/include
         ${CMAKE_INSTALL_PREFIX}/include
 )
 
 FIND_LIBRARY(
-    SNAKE_CHARMER_LIBRARIES
+    snake_charmer_LIBRARIES
     NAMES snake_charmer
-    HINTS $ENV{SNAKE_CHARMER_DIR}/lib
+    HINTS $ENV{snake_charmer_DIR}/lib
     PATHS /usr/local/lib
         /usr/lib
         ${CMAKE_INSTALL_PREFIX}/lib
@@ -18,12 +18,12 @@ FIND_LIBRARY(
 
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(
-    SNAKE_CHARMER
+    snake_charmer
     DEFAULT_MSG 
-    SNAKE_CHARMER_LIBRARIES
-    SNAKE_CHARMER_INCLUDE_DIRS
+    snake_charmer_LIBRARIES
+    snake_charmer_INCLUDE_DIRS
 )
 MARK_AS_ADVANCED(
-    SNAKE_CHARMER_LIBRARIES
-    SNAKE_CHARMER_INCLUDE_DIRS
+    snake_charmer_LIBRARIES
+    snake_charmer_INCLUDE_DIRS
 )
