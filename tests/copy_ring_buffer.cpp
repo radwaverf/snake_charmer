@@ -60,12 +60,20 @@ TEST_CASE("testing the copy_ring_buffer") {
     rc = ring_buffer.write(reinterpret_cast<const char*>(elem.data()), 1);
     CHECK(rc == ENOBUFS);
 
+    // Test that the timeout is respected
+    auto start_time = std::chrono::steady_clock::now();
+    rc = ring_buffer.write(reinterpret_cast<const char*>(elem.data()), 1, std::chrono::microseconds(10000));
+    auto end_time = std::chrono::steady_clock::now();
+    CHECK(rc == ENOBUFS);
+    auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+    CHECK(elapsed_time > 9000);
+    CHECK(elapsed_time < 11000);
+
     // Test that we can read the values, and they match what we expect
     for (size_t n = 0; n < ring_buffer.get_buffer_size_elems(); n++) {
         rc = ring_buffer.read(
             reinterpret_cast<char*>(elem.data()),
-            1,
-            std::chrono::microseconds(1)
+            1
         );
         CHECK(rc == 0);
         CHECK(elem[0] == n);
@@ -86,8 +94,7 @@ TEST_CASE("testing the copy_ring_buffer") {
     elem.resize(elem_size*max_elems_per_write);
     rc = ring_buffer.read(
         reinterpret_cast<char*>(elem.data()),
-        max_elems_per_write - 1,
-        std::chrono::microseconds(1)
+        max_elems_per_write - 1
     );
     CHECK(rc == 0);
     //   next, prep a buffer to write when straddled
@@ -108,16 +115,14 @@ TEST_CASE("testing the copy_ring_buffer") {
     for (int64_t n = 0; n<ring_buffer.get_buffer_size_elems() - max_elems_per_write; n++) {
         rc = ring_buffer.read(
             reinterpret_cast<char*>(elem.data()),
-            1,
-            std::chrono::microseconds(1)
+            1
         );
         CHECK(rc == 0);
     }
     //   read back over the straddle
     rc = ring_buffer.read(
         reinterpret_cast<char*>(elem.data()),
-        max_elems_per_write,
-        std::chrono::microseconds(1)
+        max_elems_per_write
     );
     CHECK(rc == 0);
     for (int64_t n = 0; n < max_elems_per_write; n++) {

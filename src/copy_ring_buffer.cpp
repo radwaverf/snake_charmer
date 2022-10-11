@@ -1,7 +1,10 @@
 #include <spdlog/spdlog.h>
 #include <snake_charmer/copy_ring_buffer.h>
 
+
 namespace snake_charmer {
+
+const std::chrono::microseconds CopyRingBuffer::DEFAULT_TIMEOUT(0);
 
 CopyRingBuffer::CopyRingBuffer(
         const size_t elem_size,
@@ -15,16 +18,23 @@ CopyRingBuffer::CopyRingBuffer(
         read_index(0) {
 }
 
-int CopyRingBuffer::write(const char* elem_ptr, const size_t elems_this_write) {
+int CopyRingBuffer::write(
+        const char* elem_ptr,
+        const size_t elems_this_write,
+        const std::chrono::microseconds& timeout
+    ) {
     if(elems_this_write > max_elems_per_write) {
         logger->error("requested too many elems this write: {} vs {}",
                 elems_this_write, max_elems_per_write);
         return EMSGSIZE;
     }
     std::unique_lock<std::mutex> lock(buf_mutex);
-    if(write_index + elems_this_write - read_index > num_elems) {
-        logger->warn("insufficient slack");
-        return ENOBUFS;
+    auto timeout_time  = std::chrono::system_clock::now() + timeout;
+    while(write_index + elems_this_write - read_index > num_elems) {
+        std::cv_status status = buf_cv.wait_until(lock, timeout_time);
+        if (status == std::cv_status::timeout) {
+            return ENOBUFS;
+        }
     }
     logger->debug("writing elems {} to {} == byte offsets {} to {} == indices {} to {}",
             write_index,
@@ -40,7 +50,7 @@ int CopyRingBuffer::write(const char* elem_ptr, const size_t elems_this_write) {
         elem_size * elems_this_write
     );
     write_index += elems_this_write;
-    buf_cv.notify_one();
+    buf_cv.notify_all();
     return 0;
 }
 
@@ -56,8 +66,9 @@ int CopyRingBuffer::read(
         return EMSGSIZE;
     }
     std::unique_lock<std::mutex> lock(buf_mutex);
+    auto timeout_time  = std::chrono::system_clock::now() + timeout;
     while(read_index + elems_this_read > write_index) {
-        std::cv_status status = buf_cv.wait_for(lock, timeout);
+        std::cv_status status = buf_cv.wait_until(lock, timeout_time);
         if (status == std::cv_status::timeout) {
             logger->debug("timeout");
             return ENOMSG;
@@ -81,6 +92,7 @@ int CopyRingBuffer::read(
     } else {
         read_index += advance_size;
     }
+    buf_cv.notify_all();
     return 0;
 }
 

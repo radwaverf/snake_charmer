@@ -5,6 +5,7 @@ namespace snake_charmer {
 
 class CopyRingBuffer : public RingBuffer {
     public:
+        const static std::chrono::microseconds DEFAULT_TIMEOUT;
         CopyRingBuffer(
                 const size_t elem_size,
                 const size_t max_elems_per_write,
@@ -21,7 +22,11 @@ class CopyRingBuffer : public RingBuffer {
          * Returns 0 if successful.
          * Returns ENOBUFS if buffer full
          */
-        int write(const char* elem_ptr, const size_t elems_this_write);
+        int write(
+            const char* elem_ptr,
+            const size_t elems_this_write,
+            const std::chrono::microseconds& timeout = DEFAULT_TIMEOUT
+        );
 
         /**
          * Read elem_size bytes from the buffer via memcpy
@@ -38,7 +43,7 @@ class CopyRingBuffer : public RingBuffer {
         int read(
             char* elem_ptr,
             const size_t elems_this_read,
-            const std::chrono::microseconds& timeout,
+            const std::chrono::microseconds& timeout = DEFAULT_TIMEOUT,
             const int64_t advance_size = -1
         );
 
