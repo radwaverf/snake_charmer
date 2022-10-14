@@ -7,7 +7,7 @@ find_package(doctest)
 find_package(spdlog REQUIRED)
 
 # Library
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 file(GLOB HEADER_FILES include/${PROJECT_NAME}/*.h)
 file(GLOB SRC_FILES src/*.cpp)
