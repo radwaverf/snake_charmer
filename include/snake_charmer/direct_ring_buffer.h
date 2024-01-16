@@ -39,7 +39,7 @@ using BufferIndices = std::map<size_t, BufferIndexPtr>;
 
 
 /**
- * 
+ * Single-writer, multi-reader
  */
 class DirectRingBuffer : public RingBuffer {
     public:
@@ -50,14 +50,6 @@ class DirectRingBuffer : public RingBuffer {
                 const size_t slack,
                 std::string loglevel
         );
-
-        /**
-         * Add a writer
-         *
-         * Returns a BufferIndex ID which is to be used in subsequent grab/release
-         * calls
-         */
-        size_t add_writer();
 
         /**
          * Add a reader
@@ -72,15 +64,13 @@ class DirectRingBuffer : public RingBuffer {
          *
          * elem_ptr pointer in buffer which you can then edit
          * elems_this_write number of elements you are responsible for writing
-         * id BufferIndex ID that must be provided to subsequent release call
          *
          * Returns 0 if successful.
          * Returns ENOBUFS if buffer full
          */
         int grab_write(
             char*& elem_ptr,
-            const size_t elems_this_write,
-            const size_t id
+            const size_t elems_this_write
         );
 
         /**
@@ -91,9 +81,7 @@ class DirectRingBuffer : public RingBuffer {
          * Returns 0 if successful.
          * Returns ENXIO if BufferIndex provided isn't valid
          */
-        int release_write(
-            const size_t id
-        );
+        int release_write();
 
         /**
          * Grab a portion of the buffer for reading
@@ -125,20 +113,21 @@ class DirectRingBuffer : public RingBuffer {
             const size_t id
         );
 
+        size_t get_elems_avail_to_read();
+
     private:
 
         // thread safety
         std::condition_variable buf_cv;
-        // To support concurrent writers/readers that use grab/release
-        // to directly access the buffer, we provide a list of writers/readers
+        BufferIndexPtr write_index;
+        // To support concurrent readers that use grab/release
+        // to directly access the buffer, we provide a list of readers
         // define what portions of the buffer are currently in use.
         BufferIndices indices;
         size_t next_id;
         
         // To prevent the readers and writers from conflicting, we need to
         // track the min and max indices of the readers and writers
-        size_t min_write_index;
-        size_t max_write_index;
         size_t min_read_index;
         size_t max_read_index;
         
