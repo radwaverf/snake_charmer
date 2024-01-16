@@ -14,6 +14,9 @@ file(GLOB SRC_FILES src/*.cpp)
 
 add_library(${PROJECT_NAME} "${SRC_FILES}")
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+target_link_libraries(${PROJECT_NAME}
+    spdlog::spdlog
+)
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib
     PUBLIC_HEADER DESTINATION include/${PROJECT_NAME}
