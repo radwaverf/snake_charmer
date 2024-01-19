@@ -76,6 +76,12 @@ size_t RingBuffer::get_buffer_size_bytes() {
 size_t RingBuffer::get_elem_size() {
     return elem_size;
 }
+size_t RingBuffer::get_max_elems_per_write() {
+    return max_elems_per_write;
+}
+size_t RingBuffer::get_max_elems_per_read() {
+    return max_elems_per_read;
+}
 
 # if TESTING==1
 char* RingBuffer::_direct(const size_t byte_offset) {

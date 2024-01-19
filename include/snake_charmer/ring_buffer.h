@@ -81,6 +81,16 @@ class RingBuffer {
          */
         size_t get_elem_size();
 
+        /**
+         * Get the max number of elements per write
+        */
+        size_t get_max_elems_per_write();
+
+        /**
+         * Get the max number of elements per read
+        */
+        size_t get_max_elems_per_read();
+
     protected:
         const size_t elem_size;
         const size_t max_elems_per_write;
