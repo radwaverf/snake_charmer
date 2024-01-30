@@ -41,7 +41,7 @@ int DirectRingBuffer::grab_write(
         const size_t elems_this_write)
 {
     if(elems_this_write > max_elems_per_write) {
-        logger->error("requested too many elems this read: {} vs {}",
+        logger->error("requested too many elems this write: {} vs {}",
                 elems_this_write, max_elems_per_write);
         return EMSGSIZE;
     }
@@ -74,11 +74,14 @@ int DirectRingBuffer::grab_write(
 }
 
 int DirectRingBuffer::release_write() {
+    logger->debug("Releasing write grab...");
     std::lock_guard<std::mutex> lock(buf_mutex);
     if(not write_index->in_use) {
         return EBUSY; // not in use, must be grabbed before it's released
     }
     write_index->in_use = false;
+    buf_cv.notify_all();
+    logger->debug("Released write grab.");
     return 0;
 }
 
@@ -122,6 +125,10 @@ int DirectRingBuffer::grab_read(
                 return ENOMSG;
             }
             min_write_index = write_index->in_use ? write_index->start : write_index->end;
+            logger->debug(
+                "Checking read available: {} vs {} - {} = {}",
+                elems_this_read, min_write_index, max_read_index,
+                min_write_index - max_read_index);
         }
         index->in_use = true;
         index->start = max_read_index;
