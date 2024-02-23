@@ -25,13 +25,13 @@ RingBuffer::RingBuffer(
 {
     log_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
     logger = std::make_shared<spdlog::logger>("RingBuffer", log_sink);
-    logger->critical("using level {}", loglevel);
+    logger->trace("using level {}", loglevel);
     if(loglevel.empty()) {
         logger->set_level(spdlog::level::from_str("error"));
     } else {
         logger->set_level(spdlog::level::from_str(loglevel));
     }
-    logger->critical("using level {}", loglevel);
+    logger->trace("using level {}", loglevel);
 
     const size_t min_buffer_size = (slack * max_elems_per_read + max_elems_per_write) * elem_size;
     logger->debug("Min buffer size: {}", min_buffer_size);
