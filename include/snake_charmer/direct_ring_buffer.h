@@ -114,6 +114,7 @@ class DirectRingBuffer : public RingBuffer {
         );
 
         size_t get_elems_avail_to_read();
+        size_t get_elems_avail_to_write();
 
     private:
 

@@ -46,6 +46,7 @@ int DirectRingBuffer::grab_write(
         return EMSGSIZE;
     }
     if(write_index->in_use) {
+        logger->error("already in use, must be released before grab");
         return EBUSY; // already in use, must be released before its grabbed again
     }
 
@@ -187,6 +188,11 @@ size_t DirectRingBuffer::get_elems_avail_to_read() {
     std::lock_guard<std::mutex> lock(buf_mutex);
     size_t min_write_index = write_index->in_use ? write_index->start : write_index->end;
     return min_write_index - max_read_index;
+}
+
+size_t DirectRingBuffer::get_elems_avail_to_write() {
+    std::lock_guard<std::mutex> lock(buf_mutex);
+    return min_read_index + num_elems - write_index->end;
 }
 
 }
