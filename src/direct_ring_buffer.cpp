@@ -187,12 +187,12 @@ int DirectRingBuffer::release_read(const size_t id) {
 size_t DirectRingBuffer::get_elems_avail_to_read() {
     std::lock_guard<std::mutex> lock(buf_mutex);
     size_t min_write_index = write_index->in_use ? write_index->start : write_index->end;
-    return min_write_index - max_read_index;
+    return std::min(max_elems_per_read, min_write_index - max_read_index);
 }
 
 size_t DirectRingBuffer::get_elems_avail_to_write() {
     std::lock_guard<std::mutex> lock(buf_mutex);
-    return min_read_index + num_elems - write_index->end;
+    return std::min(max_elems_per_write,  + num_elems - write_index->end);
 }
 
 }
