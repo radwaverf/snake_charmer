@@ -99,6 +99,9 @@ class RingBuffer {
         
         size_t num_elems;
         char* buf_ptr;
+#ifdef _WIN32
+        void* secondary_view;
+#endif
         size_t buf_size;
         size_t buf_overlap;
         

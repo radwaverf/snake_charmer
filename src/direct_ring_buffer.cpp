@@ -77,7 +77,7 @@ int DirectRingBuffer::grab_write(
 int DirectRingBuffer::release_write() {
     logger->debug("Releasing write grab...");
     std::lock_guard<std::mutex> lock(buf_mutex);
-    if(not write_index->in_use) {
+    if(!write_index->in_use) {
         return EBUSY; // not in use, must be grabbed before it's released
     }
     write_index->in_use = false;
@@ -161,7 +161,7 @@ int DirectRingBuffer::release_read(const size_t id) {
     if(index->function != IndexFunction::Read) {
         return EINVAL; // invalid function
     }
-    if(not index->in_use) {
+    if(!index->in_use) {
         return EBUSY; // not in use, must be grabbed before it's released
     }
     
