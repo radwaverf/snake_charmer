@@ -45,6 +45,9 @@ RingBuffer::RingBuffer(
     logger->debug("Min buffer size: {}", min_buffer_size);
 #ifdef _WIN32
     SYSTEM_INFO sys_info;
+    GetSystemInfo(&sys_info);
+    logger->debug("dwPageSize: {} vs dwAllocationGranularity: {}",
+        sys_info.dwPageSize, sys_info.dwAllocationGranularity);
     const size_t pagesize_bytes = std::max(sys_info.dwPageSize, sys_info.dwAllocationGranularity);
 #elif __unix__
     const size_t pagesize_bytes = getpagesize();
@@ -144,13 +147,28 @@ RingBuffer::RingBuffer(
     }
 
     // Success, return both mapped views to the caller.
-    char* buf_ptr = static_cast<char*>(view1);
+    buf_ptr = static_cast<char*>(view1);
     secondary_view = view2;
 
     placeholder2 = nullptr;
     view1 = nullptr;
     view2 = nullptr;
-
+    if (section != nullptr) {
+        CloseHandle(section);
+    }
+    if (placeholder1 != nullptr) {
+        VirtualFree(placeholder1, 0, MEM_RELEASE);
+    }
+    if (placeholder2 != nullptr) {
+        VirtualFree(placeholder2, 0, MEM_RELEASE);
+    }
+    if (view1 != nullptr) {
+        UnmapViewOfFileEx(view1, 0);
+    }
+    if (view2 != nullptr) {
+        UnmapViewOfFileEx(view2, 0);
+    }
+    
 #elif __unix__
     // get virtual address space of (size = buf_size + buf_overlap) for our buffer
     buf_ptr = static_cast<char*>(mmap(NULL, buf_size + buf_overlap, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
