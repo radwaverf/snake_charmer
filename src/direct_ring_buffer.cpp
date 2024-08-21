@@ -51,6 +51,7 @@ int DirectRingBuffer::grab_write(
     }
 
     {
+        logger->debug("Trying to lock buffer to write {} elems", elems_this_write);
         std::lock_guard<std::mutex> lock(buf_mutex);
         // verify that there are sufficient space in buffer for this write
         size_t buffer_space = this->get_buffer_size_elems() - (
@@ -122,7 +123,7 @@ int DirectRingBuffer::grab_read(
         while(elems_this_read > min_write_index - max_read_index) {
             std::cv_status status = buf_cv.wait_for(lock, timeout);
             if (status == std::cv_status::timeout) {
-                logger->debug("timeout");
+                logger->debug("grab_read timeout");
                 return ENOMSG;
             }
             min_write_index = write_index->in_use ? write_index->start : write_index->end;
