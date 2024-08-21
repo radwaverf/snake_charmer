@@ -192,7 +192,7 @@ size_t DirectRingBuffer::get_elems_avail_to_read() {
 
 size_t DirectRingBuffer::get_elems_avail_to_write() {
     std::lock_guard<std::mutex> lock(buf_mutex);
-    return std::min(max_elems_per_write,  + num_elems - write_index->end);
+    return std::min(max_elems_per_write, min_read_index + num_elems - write_index->end);
 }
 
 }
