@@ -17,6 +17,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}"
 target_link_libraries(${PROJECT_NAME}
     spdlog::spdlog
 )
+if (WIN32)
+    # onecore provides VirtualAlloc
+    target_link_libraries(${PROJECT_NAME} onecore)
+endif (WIN32)
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib
     PUBLIC_HEADER DESTINATION include/${PROJECT_NAME}
